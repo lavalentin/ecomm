@@ -510,7 +510,7 @@ func RndCharsFromSet(CharsSet []rune, StringLen int) string {
 }
 
 func GetTCPListener(Port string, MaxConn int) (net.Listener, error) {
-	Listener, ListenerError := net.Listen("tcp", "localhost:"+Port)
+	Listener, ListenerError := net.Listen("tcp", ":"+Port)
 	if ListenerError != nil {
 		return nil, ListenerError
 	}
