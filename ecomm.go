@@ -514,7 +514,6 @@ func GetTCPListener(Port string, MaxConn int) (net.Listener, error) {
 	if ListenerError != nil {
 		return nil, ListenerError
 	}
-	//defer Listener.Close()
 	Listener = netutil.LimitListener(Listener, MaxConn)
 
 	return Listener, nil
