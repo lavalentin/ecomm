@@ -518,3 +518,20 @@ func GetTCPListener(Port string, MaxConn int) (net.Listener, error) {
 
 	return Listener, nil
 }
+
+func GetTCPTransmittedData(Conn net.Conn, ReadTimeOutSecond int) (string, error) {
+	Conn.SetReadDeadline(time.Now().Add(time.Duration(ReadTimeOutSecond) * time.Second))
+	Scanner := bufio.NewScanner(Conn)
+	var Request string
+	for Scanner.Scan() {
+		Request = Request + Scanner.Text() + "\n"
+	}
+	if len(Request) == 0 {
+		Conn.Close()
+		return "", errors.New("request read time out")
+	}
+	//убираем последний перенос строки который сами сделали
+	//в цикле Scanner выше
+	Request = Request[:len(Request)-1]
+	return Request, nil
+}
