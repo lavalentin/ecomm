@@ -527,7 +527,6 @@ func GetTCPTransmittedData(Conn net.Conn, ReadTimeOutSecond int) (*string, error
 		Request = Request + Scanner.Text() + "\n"
 	}
 	if len(Request) == 0 {
-		Conn.Close()
 		return nil, errors.New("request read time out")
 	}
 	//убираем последний перенос строки который сами сделали
