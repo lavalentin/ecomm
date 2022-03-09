@@ -27,7 +27,7 @@ import (
 	"golang.org/x/net/netutil"
 )
 
-const TCPTransmissionEndFlag = "<<END_OF_TCP_TRANSMISSION_DATA>>"
+const TCPTransmissionEndByte = '\xFF'
 
 type DateTimeNowStruct struct {
 	Year      int
@@ -511,7 +511,7 @@ func RndCharsFromSet(CharsSet []rune, StringLen int) string {
 	return OutString
 }
 
-func GetTCPListener(Port string, MaxConn int) (net.Listener, error) {
+func TCPGetListener(Port string, MaxConn int) (net.Listener, error) {
 	Listener, ListenerError := net.Listen("tcp", ":"+Port)
 	if ListenerError != nil {
 		return nil, ListenerError
@@ -521,25 +521,12 @@ func GetTCPListener(Port string, MaxConn int) (net.Listener, error) {
 	return Listener, nil
 }
 
-func GetTCPTransmittedData(Conn net.Conn, ReadTimeOutSecond int) (*[]byte, error) {
+func TCPReadData(Conn net.Conn, ReadTimeOutSecond int) (string, error) {
 	Conn.SetReadDeadline(time.Now().Add(time.Duration(ReadTimeOutSecond) * time.Second))
-	Scanner := bufio.NewScanner(Conn)
-	var Request []byte
-	var RequestNewString []byte
-	for Scanner.Scan() {
-		RequestNewString = Scanner.Bytes()
-		if string(RequestNewString) == TCPTransmissionEndFlag {
-			break
-		} else {
-			Request = append(Request, RequestNewString...)
-			Request = append(Request, byte('\n'))
-		}
+	Data, _ := bufio.NewReader(Conn).ReadString(TCPTransmissionEndByte)
+	if len(Data) == 0 {
+		return "", errors.New("no data transmitted")
 	}
-	if len(Request) == 0 {
-		return nil, errors.New("request read time out")
-	}
-	//убираем последний перенос строки который сами сделали
-	//в цикле Scanner выше
-	Request = Request[:len(Request)-1]
-	return &Request, nil
+	Data = Data[:len(Data)-1]
+	return Data, nil
 }
