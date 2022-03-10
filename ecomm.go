@@ -530,3 +530,9 @@ func TCPReadData(Conn net.Conn, ReadTimeOutSecond int) string {
 	Data = Data[:len(Data)-1]
 	return Data
 }
+
+func TCPSendData(Conn net.Conn, Data string) {
+	DataPrepared := []byte(Data)
+	DataPrepared = append(DataPrepared, byte(TCPTransmissionEndByte))
+	Conn.Write(DataPrepared)
+}
